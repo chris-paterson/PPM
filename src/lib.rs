@@ -13,7 +13,7 @@ pub fn load(filename: &str) -> Option<Canvas> {
         Err(_) => return None,
     };
 
-    let lines = content.split("\n").collect();
+    let lines = content.split('\n').collect();
 
     // Header
     let (width, height, scale_max) = match parse_header(&lines) {
@@ -32,7 +32,7 @@ pub fn load(filename: &str) -> Option<Canvas> {
 
 fn parse_header(lines: &Vec<&str>) -> Option<(usize, usize, f32)> {
     let dimensions: Vec<&str> = match lines.get(1) {
-        Some(dimensions) => dimensions.split(" ").collect(),
+        Some(dimensions) => dimensions.split(' ').collect(),
         None => return None,
     };
 
@@ -51,7 +51,7 @@ fn parse_body(lines: &Vec<&str>, scale_max: f32) -> Option<Vec<Color>> {
     let content: Vec<f32> = lines[3..]
         .join(" ") // Merge into one string
         .trim_end()
-        .split(" ") // Split into vec of r, g, b values
+        .split(' ') // Split into vec of r, g, b values
         .map(|x| x.parse::<f32>().unwrap())
         .collect();
 
@@ -95,7 +95,7 @@ mod tests {
 255
 ";
 
-        let lines = input.split("\n").collect();
+        let lines = input.split('\n').collect();
         let (width, height, scale_max) = parse_header(&lines).unwrap();
         assert!(width == 32);
         assert!(height == 64);
@@ -117,7 +117,7 @@ mod tests {
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 255 127 255
 ";
 
-        let lines = input.split("\n").collect();
+        let lines = input.split('\n').collect();
 
         let pixels = parse_body(&lines, 255.0).unwrap();
         assert!(pixels[0] == Color::new(1.0, 0.5, 1.0))
@@ -132,7 +132,7 @@ mod tests {
 0 0 0 0 0 0
 ";
 
-        let lines = input.split("\n").collect();
+        let lines = input.split('\n').collect();
 
         let pixels = parse_body(&lines, 16.0).unwrap();
         assert!(pixels[0] == Color::new(1.0, 0.25, 0.5))
