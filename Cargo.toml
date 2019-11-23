@@ -4,6 +4,12 @@ version = "0.1.0"
 authors = ["Chris Paterson <cjpaterson.3@gmail.com>"]
 edition = "2018"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+name = "ppm"
+path = "src/lib.rs"
+
+[[bin]]
+name = "ppm_test"
+path = "src/bin.rs"
 
 [dependencies]
