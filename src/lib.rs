@@ -5,6 +5,8 @@ use canvas::Canvas;
 use color::Color;
 
 use std::fs;
+use std::fs::File;
+use std::io::prelude::*;
 
 // TODO(chris): Return an actual error
 pub fn load(filename: &str) -> Option<Canvas> {
@@ -28,6 +30,38 @@ pub fn load(filename: &str) -> Option<Canvas> {
     };
 
     Some(Canvas::new(width, height).with_pixels(pixels))
+}
+
+pub fn save(canvas: &Canvas, filename: &str) -> std::io::Result<()> {
+    let header = generate_header(canvas);
+    let body = generate_body(canvas, 255.0);
+
+    let content = format!("{}\n{}\n", header, body);
+    let mut file = File::create(filename)?;
+    write!(file, "{}", content)
+}
+
+fn generate_header(canvas: &Canvas) -> String {
+    format!("P3\n{} {}\n{}", canvas.width, canvas.height, 255)
+}
+
+fn generate_body(canvas: &Canvas, scale_max: f32) -> String {
+    let mut content = Vec::new();
+
+    for y in 0..canvas.height {
+        let mut row = Vec::new();
+        for x in 0..canvas.width {
+            let c = &canvas.pixel_at(x, y).unwrap();
+            let r = clamp(c.r * scale_max, 0., scale_max) as u32;
+            let g = clamp(c.g * scale_max, 0., scale_max) as u32;
+            let b = clamp(c.b * scale_max, 0., scale_max) as u32;
+
+            row.push(format!("{} {} {}", r, g, b));
+        }
+        content.push(row.join(" "));
+    }
+
+    content.join("\n")
 }
 
 fn parse_header(lines: &Vec<&str>) -> Option<(usize, usize, f32)> {
@@ -69,8 +103,22 @@ fn parse_body(lines: &Vec<&str>, scale_max: f32) -> Option<Vec<Color>> {
     Some(pixels)
 }
 
+// Helpers
+
 fn round_decimal(num: f32) -> f32 {
     (num * 100.0).round() / 100.0
+}
+
+fn clamp(value: f32, min: f32, max: f32) -> f32 {
+    assert!(min <= max);
+    let mut x = value;
+    if x < min {
+        x = min;
+    }
+    if x > max {
+        x = max;
+    }
+    x
 }
 
 #[cfg(test)]
@@ -129,12 +177,22 @@ mod tests {
 2 2
 16
 16 4 8 0 0 0
-0 0 0 0 0 0
-";
+0 0 0 0 0 0";
 
         let lines = input.split('\n').collect();
 
         let pixels = parse_body(&lines, 16.0).unwrap();
         assert!(pixels[0] == Color::new(1.0, 0.25, 0.5))
+    }
+
+    #[test]
+    fn test_generate_head() {
+        let canvas = Canvas::new(8, 8);
+        let header = generate_header(&canvas);
+
+        let expected_header = "P3
+8 8
+255";
+        assert!(header == expected_header);
     }
 }

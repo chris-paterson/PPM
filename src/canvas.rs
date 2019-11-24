@@ -1,9 +1,9 @@
 use crate::color::Color;
 
 pub struct Canvas {
-    width: usize,
-    height: usize,
-    pixels: Vec<Color>,
+    pub width: usize,
+    pub height: usize,
+    pub pixels: Vec<Color>,
 }
 
 impl Canvas {
